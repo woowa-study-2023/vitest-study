@@ -1,26 +1,26 @@
-interface StorageService {
-  getItem(key: string): string[] | null;
-  setItem(key: string, value: string[]): void;
+interface IStorageService {
+  getItem(key: string): { term: string; time: string }[] | null;
+  setItem(key: string, value: { term: string; time: string }[]): void;
 }
 
-class LocalStorageService implements StorageService {
-  getItem(key: string): string[] | null {
+class LocalStorageService implements IStorageService {
+  getItem(key: string): { term: string; time: string }[] | null {
     const storedItems = localStorage.getItem(key);
     return storedItems ? JSON.parse(storedItems) : null;
   }
 
-  setItem(key: string, value: string[]): void {
+  setItem(key: string, value: { term: string; time: string }[]): void {
     localStorage.setItem(key, JSON.stringify(value));
   }
 }
 
 class SearchManager {
-  private storageService: StorageService;
+  private storageService: IStorageService;
   private storageKey: string;
   private limit: number;
 
   constructor(
-    storageService: StorageService,
+    storageService: IStorageService,
     storageKey = "recentSearches",
     limit = 5
   ) {
@@ -29,35 +29,40 @@ class SearchManager {
     this.limit = limit;
   }
 
-  private getSearchTerms(): string[] {
+  private getSearchTerms() {
     const storedTerms = this.storageService.getItem(this.storageKey);
     return storedTerms ? storedTerms : [];
   }
 
-  addSearchTerm(term: string): void {
+  addSearchTerm(term: string) {
     let currentTerms = this.getSearchTerms();
 
     // 검색어가 이미 저장된 경우 해당 검색어를 삭제
-    currentTerms = currentTerms.filter((item) => item !== term);
+    currentTerms = currentTerms.filter((item) => item.term !== term);
 
     // 검색어가 최대 저장 가능 개수를 초과했을 경우 가장 오래된 검색어를 제거
     if (currentTerms.length >= this.limit) {
       currentTerms.shift();
     }
 
-    currentTerms.push(term);
+    const currentTime = getCurrentISOTime();
+    currentTerms.push({ term, time: currentTime });
     this.storageService.setItem(this.storageKey, currentTerms);
   }
 
-  removeSearchTerm(term: string): void {
+  removeSearchTerm(term: string) {
     const currentTerms = this.getSearchTerms();
-    const updatedTerms = currentTerms.filter((item) => item !== term);
+    const updatedTerms = currentTerms.filter((item) => item.term !== term);
     this.storageService.setItem(this.storageKey, updatedTerms);
   }
 
-  listSearchTerms(): string[] {
+  listSearchTerms() {
     return this.getSearchTerms();
   }
+}
+
+function getCurrentISOTime() {
+  return new Date().toISOString();
 }
 
 // 사용 예시
@@ -73,4 +78,5 @@ searchManager.addSearchTerm("GPT-4"); // 중복 검색어 추가 시도
 searchManager.removeSearchTerm("OpenAI");
 
 // 검색어 조회
-console.log(searchManager.listSearchTerms()); // ['TypeScript', 'GPT-4']
+console.log(searchManager.listSearchTerms());
+// [{ term: 'TypeScript', time: '2023-06-21T15:30:00.000Z'}, { term: 'GPT-4', time: '2023-06-21T15:31:00.000Z'}]
