@@ -1,26 +1,12 @@
-interface IStorageService {
-  getItem(key: string): { term: string; time: string }[] | null;
-  setItem(key: string, value: { term: string; time: string }[]): void;
-}
+import { StorageService } from "./localStorageService";
 
-class LocalStorageService implements IStorageService {
-  getItem(key: string): { term: string; time: string }[] | null {
-    const storedItems = localStorage.getItem(key);
-    return storedItems ? JSON.parse(storedItems) : null;
-  }
-
-  setItem(key: string, value: { term: string; time: string }[]): void {
-    localStorage.setItem(key, JSON.stringify(value));
-  }
-}
-
-class SearchManager {
-  private storageService: IStorageService;
+export class SearchManager {
+  private storageService: StorageService;
   private storageKey: string;
   private limit: number;
 
   constructor(
-    storageService: IStorageService,
+    storageService: StorageService,
     storageKey = "recentSearches",
     limit = 5
   ) {
@@ -64,19 +50,3 @@ class SearchManager {
 function getCurrentISOTime() {
   return new Date().toISOString();
 }
-
-// 사용 예시
-const searchManager = new SearchManager(new LocalStorageService());
-
-// 검색어 추가
-searchManager.addSearchTerm("OpenAI");
-searchManager.addSearchTerm("GPT-4");
-searchManager.addSearchTerm("TypeScript");
-searchManager.addSearchTerm("GPT-4"); // 중복 검색어 추가 시도
-
-// 검색어 삭제
-searchManager.removeSearchTerm("OpenAI");
-
-// 검색어 조회
-console.log(searchManager.listSearchTerms());
-// [{ term: 'TypeScript', time: '2023-06-21T15:30:00.000Z'}, { term: 'GPT-4', time: '2023-06-21T15:31:00.000Z'}]
