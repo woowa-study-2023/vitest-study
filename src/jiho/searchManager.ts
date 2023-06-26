@@ -3,7 +3,7 @@ interface IStorageService {
   setItem(key: string, value: { term: string; time: string }[]): void;
 }
 
-class LocalStorageService implements IStorageService {
+export class LocalStorageService implements IStorageService {
   getItem(key: string): { term: string; time: string }[] | null {
     const storedItems = localStorage.getItem(key);
     return storedItems ? JSON.parse(storedItems) : null;
@@ -14,7 +14,7 @@ class LocalStorageService implements IStorageService {
   }
 }
 
-class SearchManager {
+export class SearchManager {
   private storageService: IStorageService;
   private storageKey: string;
   private limit: number;
