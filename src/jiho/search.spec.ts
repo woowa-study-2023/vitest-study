@@ -54,4 +54,17 @@ describe("검색어 서비스", () => {
 
     expect(searchManager.listSearchTerms()).toMatchObject([{ term: "OpenAI" }]);
   });
+
+  test("검색어를 삭제한다", () => {
+    const localStorageService = new LocalStorageService();
+    const searchManager = new SearchManager(localStorageService);
+
+    searchManager.addSearchTerm("OpenAI");
+    searchManager.addSearchTerm("GPT-4");
+
+    searchManager.removeSearchTerm("OpenAI");
+    searchManager.removeSearchTerm("GPT-4");
+
+    expect(searchManager.listSearchTerms()).toEqual([]);
+  });
 });
