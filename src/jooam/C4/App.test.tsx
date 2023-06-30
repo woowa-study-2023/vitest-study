@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
 
-import { LocalStorageService, SearchManager } from "../../jiho/searchManager";
+import { SearchManager } from "../../jiho/searchManager";
+import { LocalStorageService } from "../../jiho/localStorageService";
 
 type SearchTermType = {
   term: string;
