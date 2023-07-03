@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import ReviewModel, { why } from "../sampleCode/C05/Review";
+import ReviewModel from "../sampleCode/C05/Review";
 
 describe("리뷰 작성", () => {
   test.each([
