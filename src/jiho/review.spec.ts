@@ -35,7 +35,7 @@ describe("리뷰 작성", () => {
       review.updateReviewContent({ stars, content });
 
       if (expectedError) {
-        expect(() => review.submit()).toThrowError();
+        expect(() => review.submit()).toThrowError(expectedError);
 
         return;
       }
@@ -79,7 +79,7 @@ describe("리뷰 작성", () => {
       const review = new ReviewModel({ stars, content });
 
       if (expectedError) {
-        expect(() => review.submit()).toThrowError();
+        expect(() => review.submit()).toThrowError(expectedError);
 
         return;
       }
