@@ -11,10 +11,10 @@ import {
 
 type Command = "ni" | "nr" | "nu" | "nun" | "nlx" | "na";
 const parseArgs = (commandLine: string, command: Command) => {
-  const removedNiCommand = commandLine.replace(command, "").trim();
-  if (removedNiCommand === "") return [];
+  const removedCommandString = commandLine.replace(command, "").trim();
+  if (removedCommandString === "") return [];
 
-  return removedNiCommand.split(" ");
+  return removedCommandString.split(" ");
 };
 
 describe("ni", () => {
