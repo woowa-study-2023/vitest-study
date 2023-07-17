@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
-import { SearchManager } from "./searchManager";
-import { LocalStorageService } from "./localStorageService";
+import { SearchManager } from "../sampleCode/C04/searchManager";
+import { LocalStorageService } from "../sampleCode/C04/localStorageService";
 
 vi.mock("./localStorageService", () => {
   const testStorage = new Map<string, unknown>();
