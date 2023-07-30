@@ -15,19 +15,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2.2.4
-        with:
-          version: 8
+      - name: Setup yarn
+        run: npm install -g yarn
 
       - name: Use Node.js 16
         uses: actions/setup-node@v2
         with:
           node-version: '16'
-          cache: 'pnpm'
+          cache: 'yarn'
 
       - name: Install dependencies
-        run: pnpm install
+        run: yarn
 
       - name: Run tests
-        run: pnpm test
+        run: yarn test
