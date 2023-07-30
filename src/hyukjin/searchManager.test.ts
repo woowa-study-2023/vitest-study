@@ -1,10 +1,10 @@
-import { describe, test, vi, expect, beforeEach, afterEach } from "vitest";
-import { SearchManager } from "../jiho/searchManager";
-import { StorageService } from "../jiho/localStorageService";
+import { describe, test, vi, expect, beforeEach, afterEach } from 'vitest';
+import { StorageService } from '../sampleCode/C04/localStorageService';
+import { SearchManager } from '../sampleCode/C04/searchManager';
 
 class MockedLocalStorage implements StorageService {
   clear(): void {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
   private data: Record<string, any> = {};
   getItem(key: string): { term: string; time: string }[] | null {
@@ -52,8 +52,8 @@ class DateMockedSut {
   }
 }
 
-describe("SearchManager", () => {
-  const storageKey = "Rich";
+describe('SearchManager', () => {
+  const storageKey = 'Rich';
 
   let storage: StorageService;
   let sut: SearchManager;
@@ -68,46 +68,46 @@ describe("SearchManager", () => {
     vi.useRealTimers();
   });
 
-  test("검색어를 추가할 수 있다.", () => {
+  test('검색어를 추가할 수 있다.', () => {
     // given
     sut = new SearchManager(storage, storageKey);
     dateMockedSut = new DateMockedSut(sut);
-    const spiedSetItem = vi.spyOn(storage, "setItem");
+    const spiedSetItem = vi.spyOn(storage, 'setItem');
 
     // when
-    dateMockedSut.addSearchTerm("삼겹살");
+    dateMockedSut.addSearchTerm('삼겹살');
 
     // then
     expect(spiedSetItem).toBeCalledWith(storageKey, [
-      { term: "삼겹살", time: dateMockedSut.termDateRecord["삼겹살"] },
+      { term: '삼겹살', time: dateMockedSut.termDateRecord['삼겹살'] },
     ]);
   });
 
-  test("중복된 검색어는 최근에 입력한 것으로 갱신된다.", () => {
+  test('중복된 검색어는 최근에 입력한 것으로 갱신된다.', () => {
     // given
     sut = new SearchManager(storage, storageKey);
     dateMockedSut = new DateMockedSut(sut);
-    const spiedSetItem = vi.spyOn(storage, "setItem");
+    const spiedSetItem = vi.spyOn(storage, 'setItem');
 
     // when
-    dateMockedSut.addSearchTerm("삼겹살");
-    dateMockedSut.addSearchTerm("삼겹살");
+    dateMockedSut.addSearchTerm('삼겹살');
+    dateMockedSut.addSearchTerm('삼겹살');
 
     // then
     expect(spiedSetItem).toBeCalledTimes(2);
     expect(sut.listSearchTerms()).toEqual(dateMockedSut.getTerms());
   });
 
-  test("검색어가 최대 저장 가능 개수를 초과하면 가장 오래된 검색어가 제거된다.", () => {
+  test('검색어가 최대 저장 가능 개수를 초과하면 가장 오래된 검색어가 제거된다.', () => {
     // given
     sut = new SearchManager(storage, storageKey, 2);
     dateMockedSut = new DateMockedSut(sut);
-    const oldestTerm = "삼겹살";
+    const oldestTerm = '삼겹살';
 
     // when
     dateMockedSut.addSearchTerm(oldestTerm);
-    dateMockedSut.addSearchTerm("곱창");
-    dateMockedSut.addSearchTerm("막창");
+    dateMockedSut.addSearchTerm('곱창');
+    dateMockedSut.addSearchTerm('막창');
 
     // then
     expect(sut.listSearchTerms()).not.toContain({
