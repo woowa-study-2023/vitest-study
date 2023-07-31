@@ -28,7 +28,8 @@ export function getCommand(
   if (!(agent in AGENTS)) throw new Error(`Unsupported agent "${agent}"`);
 
   const c = AGENTS[agent][command];
-
+ 
+  // 함수면 함수를 실행함 npmrun이 그 예시임
   if (typeof c === "function") return c(args);
 
   if (!c) throw new UnsupportedCommand({ agent, command });
