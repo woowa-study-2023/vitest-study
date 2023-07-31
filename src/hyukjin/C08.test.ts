@@ -20,7 +20,7 @@ describe("clsx", () => {
     }
   );
 
-  test("객체 형식으로 이루어진 args를 truhy한 value를 갖는 객체의 키값을 활용해 classname으로 변환한다.", () => {
+  test("객체 형식으로 이루어진 args를 truthy한 value를 갖는 객체의 키값을 활용해 classname으로 변환한다.", () => {
     const args = [{ foo: 1 }, { bar: false }, { baz: undefined }];
 
     expect(clsx(args)).toBe("foo");
