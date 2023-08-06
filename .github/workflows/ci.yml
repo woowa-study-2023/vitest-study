@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       error: ${{ steps.run.outputs.stderr }}
-      stdout: ${{ steps.run.outputs.stdout }}
+      # stdout: ${{ steps.run.outputs.stdout }}
 
     steps:
       - name: Checkout
@@ -54,5 +54,5 @@ jobs:
             :warning: **Test failed**
             - [Job log](${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }})
             ```bash
-            ${{ needs.test.outputs.stdout || needs.test.outputs.error }}
+            ${{ needs.test.outputs.error }}
             ```
