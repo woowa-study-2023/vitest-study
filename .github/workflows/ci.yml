@@ -11,7 +11,7 @@ jobs:
     name: "Test"
     runs-on: ubuntu-latest
     outputs:
-      stdout: ${{ steps.uncolored-stdout.outputs.stdout }}
+      stdout: ${{ steps.run.outputs.stdout }}
 
     steps:
       - name: Checkout
@@ -34,14 +34,6 @@ jobs:
         id: run
         with:
           run: yarn test
-      - name: Remove ANSI color escape sequences
-        uses: marcransome/remove-ansi-colors@v1
-        id: remove-ansi-colors
-        with:
-          colored: ${{ steps.run.outputs.stderr }}
-      - name: Use uncolored output
-        id: uncolored-stdout
-        run: echo "${{ steps.remove-ansi-colors.outputs.uncolored }}"
 
   comment-on-pr:
     runs-on: ubuntu-latest
@@ -54,6 +46,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Remove ANSI color escape sequences
+        uses: marcransome/remove-ansi-colors@v1
+        id: remove-ansi-colors
+        with:
+          colored: ${{ needs.test.outputs.stdout }}
+      - name: Use uncolored output
+        id: uncolored-stdout
+        run: echo "${{ steps.remove-ansi-colors.outputs.uncolored }}"
+
       - name: Comment PR
         uses: thollander/actions-comment-pull-request@v2
         with:
@@ -61,5 +62,5 @@ jobs:
             :warning: **Test failed**
             - [Job log](${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }})
             ```bash
-            ${{ needs.test.outputs.error }}
+            ${{ steps.uncolored-stdout.outputs.stdout }}
             ```
