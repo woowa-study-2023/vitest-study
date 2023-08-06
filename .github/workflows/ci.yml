@@ -11,8 +11,8 @@ jobs:
     name: "Test"
     runs-on: ubuntu-latest
     outputs:
-      error: ${{ steps.test.outputs.stderr }}
-      stdout: ${{ steps.test.outputs.stdout }}
+      error: ${{ steps.run.outputs.stderr }}
+      stdout: ${{ steps.run.outputs.stdout }}
 
     steps:
       - name: Checkout
@@ -30,9 +30,11 @@ jobs:
       - name: Install dependencies
         run: yarn
 
-      - name: Run tests
-        id: test
-        run: yarn test
+      - name: Run Test
+        uses: mathiasvr/command-output@v1
+        id: run
+        with:
+          run: yarn test
 
   comment-on-pr:
     runs-on: ubuntu-latest
