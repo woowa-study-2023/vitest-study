@@ -8,8 +8,10 @@ on:
 
 jobs:
   test:
-    name: 'Test'
+    name: "Test"
     runs-on: ubuntu-latest
+    outputs:
+      error: ${{ steps.run.outputs.stderr }}
 
     steps:
       - name: Checkout
@@ -21,11 +23,41 @@ jobs:
       - name: Use Node.js 16
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
-          cache: 'yarn'
+          node-version: "16"
+          cache: "yarn"
 
       - name: Install dependencies
         run: yarn
 
-      - name: Run tests
-        run: yarn test
+      - name: Run Test
+        uses: mathiasvr/command-output@v1
+        id: run
+        with:
+          run: yarn test
+
+  comment-on-pr:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    name: Comment on PR
+    needs: test
+    if: failure()
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Remove ANSI color escape sequences
+        uses: marcransome/remove-ansi-colors@v1
+        id: remove-ansi-colors
+        with:
+          colored: ${{ needs.test.outputs.error }}
+
+      - name: Comment PR
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            :warning: **Test failed**
+            - [Job log](${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }})
+            ```bash
+            ${{ steps.remove-ansi-colors.outputs.uncolored }}
+            ```
