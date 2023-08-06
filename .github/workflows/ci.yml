@@ -11,7 +11,7 @@ jobs:
     name: "Test"
     runs-on: ubuntu-latest
     outputs:
-      stdout: ${{ steps.run.outputs.stdout }}
+      error: ${{ steps.run.outputs.stderr }}
 
     steps:
       - name: Checkout
@@ -50,10 +50,7 @@ jobs:
         uses: marcransome/remove-ansi-colors@v1
         id: remove-ansi-colors
         with:
-          colored: ${{ needs.test.outputs.stdout }}
-      - name: Use uncolored output
-        id: uncolored-stdout
-        run: echo "${{ steps.remove-ansi-colors.outputs.uncolored }}"
+          colored: ${{ needs.test.outputs.error }}
 
       - name: Comment PR
         uses: thollander/actions-comment-pull-request@v2
@@ -62,5 +59,5 @@ jobs:
             :warning: **Test failed**
             - [Job log](${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }})
             ```bash
-            ${{ steps.uncolored-stdout.outputs.stdout }}
+            ${{ steps.remove-ansi-colors.outputs.uncolored }}
             ```
