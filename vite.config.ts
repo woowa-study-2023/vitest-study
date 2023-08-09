@@ -11,7 +11,7 @@ interface VitestConfigExport extends UserConfig {
 export default defineConfig({
   plugins: [react()],
   test: {
-    environment: "jsdom",
+    environment: "node",
     reporters: ["default", "html"],
   },
 } as VitestConfigExport);
