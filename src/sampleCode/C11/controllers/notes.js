@@ -1,15 +1,15 @@
 import express from "express";
 import Note from "../models/note";
+import mongoose from "mongoose";
 
 const notesRouter = express.Router();
 
 notesRouter.get("/", async (request, response) => {
   const notes = await Note.find({});
-  console.log('hi')
   response.json(notes);
 });
 
-notesRouter.post("/", async (request, response) => {
+notesRouter.post("/", async (request, response,next) => {
   const body = request.body;
 
   const note = new Note({
@@ -17,12 +17,17 @@ notesRouter.post("/", async (request, response) => {
     important: body.important || false,
   });
 
-  const savedNote = await note.save();
+  const savedNote = await note.save().catch((error) => {
+      next(error)
+  });
   response.status(201).json(savedNote);
 });
 
-notesRouter.get("/:id", async (request, response) => {
-  const note = await Note.findById(request.params.id);
+notesRouter.get("/:id", async (request, response,next) => {
+
+  const note = await Note.findById(request.params.id).catch((error) => {
+    next(error)
+  });
   if (note) {
     response.json(note);
   } else {

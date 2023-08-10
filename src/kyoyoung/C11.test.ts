@@ -2,33 +2,70 @@ import supertest  from 'supertest'
 import  app from '../sampleCode/C11/app'
 import mongoose from 'mongoose'
 import helper from '../sampleCode/C11/testHelper'
-import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { MongoMemoryServer } from 'mongodb-memory-server'
+import Note from '../sampleCode/C11/models/note'
+
 const api = supertest(app)
 
 let mongod: MongoMemoryServer;
 
-beforeAll(async () => {
+
+
+// For mongodb-memory-server's old version (< 7) use this instead:
+// const mongoServer = new MongoMemoryServer();
+
+const opts = {
+  useUnifiedTopology: true,
+};
+
+// Provide connection to a new in-memory database server.
+const connect = async () => {
+  // NOTE: before establishing a new connection close previous
+  await mongoose.disconnect();
+
   mongod = await MongoMemoryServer.create();
-  const uri = mongod.getUri();
-  await mongoose.connect(uri, {
-   }).then((result) => {
-    console.log(result.connection.readyState)  
-    console.log(result.connection.host)
-   }).catch((err) => {
-    console.log(err)
-   });
-});
 
+  const mongoUri = await mongod.getUri();
+  await mongoose.connect(mongoUri ).then(()=>{
+    console.log('연결되었다!!!!!')
+  });
+};
 
+// Remove and close the database and server.
+const close = async () => {
+  await mongoose.disconnect();
+  await mongod.stop();
+};
 
-afterEach(async () => {
+// Remove all data from collections
+const clear = async () => {
   const collections = mongoose.connection.collections;
+
   for (const key in collections) {
-    const collection = collections[key];
-    await collection.deleteMany();
+    await collections[key].deleteMany();
   }
+};
+
+beforeAll(async () => {
+await connect()
 });
+
+
+
+beforeEach(async () => {
+await helper.initialNotes.map((note)=>{
+  new Note({
+    content:note.content,
+    important:note.important
+  }).save()
+ })
+});
+
+
+afterEach(async()=>{
+  await clear()
+})
 
 describe('when there is initially some notes saved', () => {
 
@@ -60,11 +97,10 @@ describe('when there is initially some notes saved', () => {
 
     test('succeeds with a valid id', async () => {
       const notesAtStart = await helper.notesInDb()
-
       const noteToView = notesAtStart[0]
 
       const resultNote = await api
-        .get(`/api/notes/${noteToView._id}`)
+        .get(`/api/notes/${(noteToView as any).id}`)
         .expect(200)
         .expect('Content-Type', /application\/json/)
 
@@ -74,12 +110,12 @@ describe('when there is initially some notes saved', () => {
     test('fails with statuscode 404 if note does not exist', async () => {
       const validNonexistingId = await helper.nonExistingId()
 
-      console.log(validNonexistingId)
 
       await api
         .get(`/api/notes/${validNonexistingId}`)
         .expect(404)
     })
+
 
     test('fails with statuscode 400 id is invalid', async () => {
       const invalidId = '5a3d5da59070081a82a3445'
@@ -134,7 +170,7 @@ describe('when there is initially some notes saved', () => {
       const noteToDelete = notesAtStart[0]
 
       await api
-        .delete(`/api/notes/${noteToDelete._id}`)
+        .delete(`/api/notes/${(noteToDelete as any).id}`)
         .expect(204)
      const notesAtEnd = await helper.notesInDb()
 
@@ -150,8 +186,6 @@ describe('when there is initially some notes saved', () => {
 })
 
 afterAll(async () => {
-    await mongoose.connection.dropDatabase();
-    await mongoose.connection.close();
-    await mongod.stop();
+await close()
   });
 

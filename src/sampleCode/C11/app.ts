@@ -18,7 +18,7 @@ app.use(express.json())
 
 app.use('/api/notes', notesRouter)
 
-app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
+app.use(middleware.unknownEndpoint)
 
 export default app

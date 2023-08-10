@@ -58,4 +58,3 @@ review.updateReviewContent({
   stars: 5,
   content: "This is a good product!",
 });
-console.log(review.submit());
